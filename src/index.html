@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/font.css">
+
+  <link rel="stylesheet" href="css/main.css">
+  <title>JEASY</title>
+</head>
+
+<body>
+
+
+  <script type="text/x-template" id="open-modal">
+    <transition name="modal">
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <div id="drag-file" class="modal-container">
+              <img style="opacity:.4" src="./assets/jsfile.png" width="100%" height="90%" alt="">
+              <div class="close"><span @click="$emit('close')">X</span></div>
+              <p style="text-align:center;letter-spacing:3px;"> Drop your file here </p>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </script>
+
+  <div id="app">
+    <div class="response-list">
+      <div class="response-log" v-for="resp in responseList" :class="resp.color">
+        {{resp.text}} </div>
+    </div>
+    <div class="loading" v-if="isLoading"> <img src="./assets/loading.svg" alt=""> </div>
+    <open-modal v-if="seenOpenModal" @filepath="readFile" @close="seenOpenModal = false"> </open-modal>
+    <div class="menubar">
+      <div class="menu">
+        <div>
+          File
+          <div class="dropdown">
+            <div @click="seenOpenModal = true"> Open File </div>
+            <div @click="saveFile"> Save </div>
+            <div @click="saveAsFile"> Save as </div>
+            <div> Set CWDir </div>
+          </div>
+        </div>
+        <div>
+          Settings
+        </div>
+        <div>
+          Help
+        </div>
+
+      </div>
+      <div class="drag"></div>
+      <div class="icon-container">
+        <span class="icon minimize" @click="minimize"></span>
+        <span class="icon maximize" @click="togglize"></span>
+        <span class="icon close" @click="close"></span>
+      </div>
+
+    </div>
+
+    <div class="editor" :style="{fontSize:fontSize+'px'}">
+      <div class="wrapper">
+        <div class="gutter">
+          <div v-for="i in gutter"> {{i}} </div>
+        </div>
+        <textarea id="code-editor" @keyup.ctrl.83="saveFile" @keydown.9="tabClick" :style="{fontSize:fontSize+'px'}"
+          spellcheck="false" v-model="code"></textarea>
+
+      </div>
+    </div>
+    <div class="terminal">
+      <div class="run-btn">
+        <button @click="run"> RUN </button>
+      </div>
+      <div class="tag">
+        <div class="content">
+          Output
+        </div>
+      </div>
+      <div class="result">
+        <div class="log" v-for="log in logs"> {{log}} </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/vue.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
