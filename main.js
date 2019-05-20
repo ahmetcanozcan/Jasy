@@ -2,7 +2,7 @@ const {
   app,
   BrowserWindow,
   ipcMain,
-  dialog
+  dialog,
 } = require('electron');
 
 const path = require('path');
@@ -10,11 +10,11 @@ const path = require('path');
 let mainWindow;
 
 
-const handleSquirrelEvent = require('./squirell');
-if (handleSquirrelEvent(app)) {
-  // squirrel event handled and app will exit in 1000ms, so don't do anything else
-  return;
-}
+// const handleSquirrelEvent = require('./squirell');
+// if (handleSquirrelEvent(app)) {
+//   // squirrel event handled and app will exit in 1000ms, so don't do anything else
+//   return;
+// }
 
 
 function createWindow() {
@@ -55,6 +55,18 @@ function createWindow() {
       e.reply('saveAsDialog', path);
     })
   })
+  ipcMain.on('setupConfig', (e, a) => {
+    let config = {};
+    let argv = process.argv;
+    if (argv.length > 2) {
+      let fileName = argv[2];
+      let filePath = path.join(process.cwd(), fileName);
+      config.filePath = filePath;
+    }
+
+    e.reply('setupConfig', config);
+  })
+
 }
 
 

@@ -73,9 +73,12 @@
 
       </div>
     </div>
-    <div class="terminal">
+    <div :style="{height: terminalHeight+'px'}" class="terminal">
+      <div class="expand-bar" @mousedown="startTerminalResize" @mousemove="doResize"></div>
       <div class="run-btn">
-        <button @click="run"> RUN </button>
+        <div class="run-btn-wrapper" @click="run">
+          <img src="./assets/play.svg" alt="">
+        </div>
       </div>
       <div class="tag">
         <div class="content">

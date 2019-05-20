@@ -4,6 +4,7 @@
   "description": "A lightweight nodejs ide",
   "main": "main.js",
   "scripts": {
+    "arg": "electron . src/js/main.js",
     "start": "electron ."
   },
   "keywords": [

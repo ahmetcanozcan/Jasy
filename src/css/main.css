@@ -160,9 +160,10 @@ div#app>div.menubar div.icon-container span.icon.maximize:hover {
 div.editor {
   padding-top: 35px;
   position: relative;
-  height: 70vh;
-  max-height: 70vh;
+  height: 95vh;
+  max-height: 95vh;
   overflow-y: scroll;
+  background-color: rgba(42, 54, 59, 0.534);
 }
 
 div.editor * {
@@ -174,14 +175,15 @@ div.editor .wrapper {
   grid-template-columns: 4rem auto;
   height: 100%;
   overflow: visible;
+
 }
 
 div.editor #code-editor {
+  background-color: transparent;
   height: 100%;
   width: 100%;
   outline: none;
   color: white;
-  background-color: rgba(42, 54, 59, 0.534);
   border: 0;
   padding: 1rem;
   overflow: hidden;
@@ -192,22 +194,34 @@ div.editor .gutter {
   padding-right: .7rem;
   text-align: right;
   color: #FECEA8;
+  padding-bottom: 85vh;
   background-color: rgba(42, 54, 59, 0.726);
 }
 
 
 
 div.terminal {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
   height: 29.5vh;
+  min-height: 9.5vh;
+  max-height: 70vh;
   padding: .7rem;
   padding-top: 1rem;
-  max-height: 29.5vh;
   border: 3px solid #2A363B;
   border-top-width: 10px;
   color: #FECEA8;
   background-color: rgb(37, 38, 39);
+  transition: 100ms;
+}
 
+div.terminal>div.expand-bar {
+  position: absolute;
+  top: -9px;
+  left: 0;
+  height: 15px;
+  cursor: row-resize;
 }
 
 div.terminal>div.tag {
@@ -230,9 +244,37 @@ div.terminal>div.tag>div.content {
 div.terminal>div.run-btn {
   position: absolute;
   text-align: center;
-  top: -30px;
+  top: -48px;
+  transform: translateX(45vw);
   z-index: 0;
 }
+
+div.terminal>div.run-btn {
+
+  margin-right: 45%;
+  width: 96px !important;
+  height: 96px;
+  background-color: #E84A5F;
+  color: #2A363B;
+  border: 7px solid #2A363B;
+  transition: 300ms;
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+div.terminal>div.run-btn:hover {
+
+  background-color: rgb(119, 43, 53);
+
+}
+
+div.terminal>div.run-btn img {
+  width: 100%;
+  height: 100%;
+  transform: translateX(5px);
+}
+
 
 div.terminal>div.result {
   max-height: 100%;
@@ -250,7 +292,7 @@ div.terminal>div.run-btn button {
   font-size: 18px;
   padding: .41rem 2.4rem;
   letter-spacing: 12px;
-  border-radius: 15px;
+  border-radius: 50%;
   background-color: #E84A5F;
   color: #2A363B;
   border: 7px solid #2A363B;

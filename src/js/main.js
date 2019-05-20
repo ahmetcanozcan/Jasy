@@ -45,10 +45,31 @@ const app = new Vue({
     isMaximized: false,
     code: "",
     fontSize: 26,
+    terminalHeight: 0,
+    resizingTerminal: false,
     logs: [],
     seenOpenModal: false,
     filePath: "",
     responseList: [],
+  },
+  created() {
+    ipcRenderer.send('setupConfig');
+    ipcRenderer.on('setupConfig', (e, setupConfig) => {
+      console.log('setup configs', setupConfig);
+
+      if (setupConfig.filePath) {
+        this.readFile(setupConfig.filePath);
+      }
+    });
+
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    this.terminalHeight = h * 3 / 10;
+  },
+  mounted() {
+
+
+    window.addEventListener('mouseup', this.stopTerminalResize);
+    window.addEventListener('mousemove', this.doResize);
   },
   methods: {
     close() {
@@ -69,10 +90,11 @@ const app = new Vue({
       this.isLoading = true;
       this.filePath = path;
       try {
+        console.log(path);
         let str = fs.readFileSync(path);
         this.code = str.toString();
       } catch (err) {
-        alert('That\'s not a valid file');
+        alert('That\'s not a valid file' + err);
       }
 
       this.isLoading = false;
@@ -126,6 +148,7 @@ const app = new Vue({
     keyDownMonitor(e) {
 
     },
+
     tabClick(e) {
       let elm = document.getElementById('code-editor');
       let start = elm.selectionStart;
@@ -140,9 +163,24 @@ const app = new Vue({
       // prevent the focus lose
       e.preventDefault();
 
+    },
+    startTerminalResize() {
+      this.resizingTerminal = true;
+      console.log(this.resizingTerminal);
+    },
+    stopTerminalResize() {
+      this.resizingTerminal = false;
+      console.log(this.resizingTerminal);
+
+    },
+    doResize(event) {
+      if (this.resizingTerminal) {
+        let vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        this.terminalHeight = vh - event.clientY;
+        console.log(this.terminalHeight);
+      }
     }
   },
-
   computed: {
     gutter() {
       return this.code.split('\n').length;
