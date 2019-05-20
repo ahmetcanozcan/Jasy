@@ -30,12 +30,13 @@ Vue.component('openModal', {
   }
 })
 const {
-  ipcRenderer
+  ipcRenderer,
+  remote
 } = require('electron');
-
+const path = require('path');
 const fs = require('fs');
 
-const spawn = require('child_process').spawnSync;
+const spawn = require('child_process').spawn;
 
 
 const app = new Vue({
@@ -51,23 +52,21 @@ const app = new Vue({
     seenOpenModal: false,
     filePath: "",
     responseList: [],
+    child: null,
   },
   created() {
-    ipcRenderer.send('setupConfig');
-    ipcRenderer.on('setupConfig', (e, setupConfig) => {
-      console.log('setup configs', setupConfig);
-
-      if (setupConfig.filePath) {
-        this.readFile(setupConfig.filePath);
-      }
-    });
+    let argv = remote.process.argv;
+    console.log("arguments", argv);
+    if (argv.length == 2) {
+      let fileName = argv[1];
+      let filePath = path.join(process.cwd(), fileName);
+      this.readFile(filePath);
+    }
 
     var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     this.terminalHeight = h * 3 / 10;
   },
   mounted() {
-
-
     window.addEventListener('mouseup', this.stopTerminalResize);
     window.addEventListener('mousemove', this.doResize);
   },
@@ -109,15 +108,25 @@ const app = new Vue({
     },
     run() {
       this.logs = [];
-      let child = spawn('node', ['-e', this.code]);
-      let out = (child.stdout || "").toString();
-      let err = (child.stderr || "").toString();
-      let outArr = out.split("\n");
-      let errArr = err.split("\n");
-      console.log(err, errArr);
-      console.log(outArr, errArr);
-      this.logs = [...outArr, ...errArr];
+      if (this.filePath == "") {
+        this.child = spawn('node', ['-e', this.code]);
+      } else {
+        this.child = spawn('node', [this.filePath]);
+      }
+      console.log(this.child);
+      let hrstart = process.hrtime();
+      this.child.stdout.on('data', data => {
+        this.logs.push(data);
+      });
 
+      this.child.stderr.on('data', data => {
+        this.logs.push(data);
+      });
+      let hrend = process.hrtime(hrstart);
+      this.child.on('close', code => {
+        this.logs.push(`Exit ${code}`);
+        this.logs.push(`Your code executed in ${hrend[0]}s ${hrend[1]/10e6}ms`);
+      })
     },
     saveFile() {
       if (!this.filePath) {
@@ -153,7 +162,6 @@ const app = new Vue({
       let elm = document.getElementById('code-editor');
       let start = elm.selectionStart;
       let end = elm.selectionEnd;
-      console.log(start, end);
       this.code = this.code.substring(0, start) +
         "\t" +
         this.code.substring(end);
@@ -166,18 +174,15 @@ const app = new Vue({
     },
     startTerminalResize() {
       this.resizingTerminal = true;
-      console.log(this.resizingTerminal);
     },
     stopTerminalResize() {
       this.resizingTerminal = false;
-      console.log(this.resizingTerminal);
 
     },
     doResize(event) {
       if (this.resizingTerminal) {
         let vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
         this.terminalHeight = vh - event.clientY;
-        console.log(this.terminalHeight);
       }
     }
   },
